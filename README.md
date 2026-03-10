@@ -1,6 +1,7 @@
 # Space shooter
 
-I was tasked with implementing and creating the classic game "Spaceshooter". Fun exercise that demanded I'd be able to get an overview of an exercise codebase in which I was to make changes and decisions based on systems programming.
+I was tasked with implementing and creating the classic game "Spaceshooter". Fun exercise that demanded I'd be able to get an overview of an existing codebase in which I was to implement gamelogic and programdecisions based on what I learned in the course "systems programming".
+The program runs on a RPi 5.
 
 #### More technical, please.
 
