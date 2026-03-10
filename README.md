@@ -5,7 +5,7 @@ The program runs on a RPi 5.
 
 #### More technical, please.
 
-This program was all about POSIX I/O and concurrency. The goal was to implement a game imitating the iconic "Spaceshooter" in a Raspberry Pi 5. The project was given as an assignment in the course "Systemprogramming". 
+This program was all about POSIX I/O and concurrency.
 
 ## My focus was on
 - Working with multiple threads.
