@@ -1,0 +1,156 @@
+@startuml cd_space_shooter
+
+/' Generated with hpp2plantuml -i file1.hpp -i "../../include/*.hpp" -o out.puml '/
+
+/' Objects '/
+
+class Accelerometer {
+	+Accelerometer(GameState* game)
+	-game : GameState*
+	+readAccelerometer() : Vec2
+}
+
+
+class Bullet {
+	+Bullet(GameState* game, Buttons* buttons)
+	-buttons : Buttons*
+	-game : GameState*
+	+bulletInputThread() : void
+	+bulletUpdateThread() : void
+}
+
+
+class Buttons {
+	+Buttons(GameState* game)
+	+~Buttons()
+	-game : GameState*
+	+readMoveButtons() : Vec2
+	-buttonLeft : bool
+	-buttonRight : bool
+	+readShootButtonLeft() : bool
+	+readShootButtonRight() : bool
+	-chip_fd : int
+	-data_in : struct gpiohandle_data
+	-req_in : struct gpiohandle_request
+	+buttonsThread() : void
+	-readGPIOs() : void
+}
+
+
+class Display {
+	+Display(SSD1306& oledRef, GameState* game)
+	-game : GameState*
+	-oled : SSD1306&
+	+displayThread() : void
+	+drawDisplay(const Vec2& shipPos, const std::vector<Vec2>& bullets, const std::vector<Vec2>& enemies, int score) : void
+}
+
+
+class Enemy {
+	+Enemy(GameState* game)
+	-game : GameState*
+	+enemyThread() : void
+}
+
+
+class GameController {
+	+GameController(GameState* game)
+	-game : GameState*
+	+gameControllerThread() : void
+}
+
+
+class I2CDriver {
+	+I2CDriver()
+	+~I2CDriver()
+	-fd_ : int
+	+read(uint8_t slaveAddress, uint8_t* buf, uint16_t length) : int8_t
+	+write(uint8_t slaveAddress, const uint8_t* buf, uint16_t length) : int8_t
+}
+
+
+class Ship {
+	+Ship(GameState* game, Buttons* buttons)
+	-buttons : Buttons*
+	-game : GameState*
+	+moveShip(Vec2 move) : void
+	+shipThread() : void
+}
+
+
+class GameState {
+	+{ : Vec2 gravity
+	+{ : Vec2 gravity
+	+{ : Vec2 shipPos
+	+{ : Vec2 shipPos[]
+	+{ : Vec2 shipPos[]
+	+displayHeight : Vec2 shipPos{
+	+moveButton_flag : bool
+	+running : bool
+	+shootButtonLeft_flag : bool
+	+shootButtonRight_flag : bool
+	+score : int
+	+cv : std::condition_variable
+	+moveButton_cv : std::condition_variable
+	+shootButton_cv : std::condition_variable
+	+gameMutex : std::mutex
+	+bullets : std::vector<Vec2>
+	+enemies : std::vector<Vec2>
+}
+
+
+class Vec2 {
+	+x : int
+	+y : int
+}
+
+
+
+
+
+/' Inheritance relationships '/
+
+
+
+
+/' Aggregation relationships '/
+
+Accelerometer o-- GameState
+
+
+Bullet o-- Buttons
+
+
+Bullet o-- GameState
+
+
+Buttons o-- GameState
+
+
+Display o-- GameState
+
+
+Enemy o-- GameState
+
+
+GameController o-- GameState
+
+
+GameState "8" *-- Vec2
+
+
+Ship o-- Buttons
+
+
+Ship o-- GameState
+
+
+
+
+
+
+/' Nested objects '/
+
+
+
+@enduml
