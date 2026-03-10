@@ -32,21 +32,25 @@ Buttons::Buttons(GameState *game): game(game)
     chip_fd = open("/dev/gpiochip0", O_RDONLY);
     if (chip_fd == -1) perror("open()"); 
 
-    const int pins[NUM_BUTTONS] = { BTN_A, BTN_B, BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RIGHT };
+    req_in.lineoffsets[0] = BTN_A;
+    req_in.lineoffsets[1] = BTN_B;
+    req_in.lineoffsets[2] = BTN_UP;
+    req_in.lineoffsets[3] = BTN_DOWN;
+    req_in.lineoffsets[4] = BTN_LEFT;
+    req_in.lineoffsets[5] = BTN_RIGHT;
 
-    for (int i = 0; i < NUM_BUTTONS; ++i) {
-        memset(&req_in[i], 0, sizeof(state.req[i]));
-        state.req[i].lineoffset  = pins[i];
-        state.req[i].eventflags  = GPIOEVENT_REQUEST_BOTH_EDGES;
-        state.req[i].handleflags = GPIOHANDLE_REQUEST_INPUT;
-        strcpy(state.req[i].consumer_label, "GPIO event monitor");
+    req_in.flags = GPIOHANDLE_REQUEST_INPUT;
+    req_in.lines = 6;
+    int ret = ioctl(chip_fd, GPIO_GET_LINEHANDLE_IOCTL, &req_in);
+    if (ret < 0 ) perror("ioctl()");
 }
 
 Buttons::~Buttons()
 {
-    /* TODO: Release GPIO inputs
-     * 1) Close File descriptors (x2)
-     */
+    close(req_in.fd);
+        //Lukker handleren til mine 6 pins.
+    close(chip_fd);
+        // lukker forbindelsen til min GPIO.
 }
 
 Vec2 Buttons::readMoveButtons()
@@ -59,7 +63,21 @@ Vec2 Buttons::readMoveButtons()
      * - right: {1, 0}
      * - None pressed: {0, 0}   
      */
-    return {0, 0};
+
+     if (data_in.values[2] == 0) {
+     return {0,-1};
+
+    } else if (data_in.values[3] == 0) {
+        return {0, 1};
+
+     } else if (data_in.values[4] == 0) {
+        return {-1,0};
+
+     } else if (data_in.values[5] == 0) {
+        return {1,0};
+     }
+     else return {0,0};
+
 }
 
 class EdgeDetector{
@@ -77,6 +95,10 @@ public:
 
 void Buttons::buttonsThread()
 {
+    EdgeDetector ED_A(1);
+    EdgeDetector ED_B(1);
+
+
     while (game->running)
     {
 
@@ -85,12 +107,20 @@ void Buttons::buttonsThread()
          * 2) Update GPIO input data buffer
          * 3) Notify if shoot button has changed
          */
+
+         std::this_thread::sleep_for(std::chrono::milliseconds(25));
+         readGPIOs();
+
+         if (ED_A.valueChanged(data_in.values[0]) || ED_B.valueChanged(data_in.values[1])) {
+            std::unique_lock<std::mutex> lock(game->gameMutex);
+                game->shootButton_cv.notify_one();
+         }
+
+
     }
 }
 
 void Buttons::readGPIOs()
 {
-    /* TODO: Read GPIOs
-     * 1) Update input data buffer with current GPIO state  
-     */
+    int ret_val = ioctl(req_in.fd, GPIOHANDLE_GET_LINE_VALUES_IOCTL, &data_in);
 }

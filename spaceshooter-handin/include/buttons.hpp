@@ -3,6 +3,13 @@
 #include "game_state.hpp"
 #include <linux/gpio.h>
 
+#define BTN_A 27
+#define BTN_B 22
+#define BTN_UP 12
+#define BTN_DOWN 16
+#define BTN_LEFT 5
+#define BTN_RIGHT 6
+
 class Buttons {
 public:
     Buttons(GameState *game);
